@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #e8f5e9;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    h1 {
+      color: #2e7d32;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #45a049;
+      font-size: 1.8em;
+      margin-bottom: 15px;
+    }
+
+    .question {
+      background-color: #c8e6c9;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .answers, .categories {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .answers button, .categories button {
+      padding: 12px 25px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 25px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .answers button:hover, .categories button:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .answers button:active, .categories button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .answers button.correct {
+      background-color: #2e7d32;
+    }
+
+    .answers button.incorrect {
+      background-color: #c62828;
+    }
+
+    #timer {
+      font-size: 28px;
+      margin-top: 20px;
+      color: #f57f17;
+      font-weight: bold;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    #score {
+      font-size: 20px;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    .categories button {
+      background-color: #45a049;
+    }
+
+    .categories button:hover {
+      background-color: #2e7d32;
+    }
+
+    #question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    #question-number {
+      font-size: 18px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: #2e7d32;
+    }
+
+    #quit-button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 25px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    #quit-button:hover {
+      background-color: #e53935;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 600px) {
+      .answers, .categories {
+        flex-direction: column;
+      }
+      body {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz</h1>
+    <div id="category-selection">
+      <h2>Select a category:</h2>
+      <div class="categories">
+        <button onclick="startGame('Sports')">Sports</button>
+        <button onclick="startGame('History')">History</button>
+        <button onclick="startGame('Science')">Science</button>
+        <!-- Add more category buttons as needed -->
+      </div>
+    </div>
+    <div id="quiz-container" style="display: none;">
+      <div class="question">
+        <h2 id="question-category"></h2>
+        <div id="question-number"></div>
+        <p id="question-text"></p>
+        <div class="answers">
+          <button onclick="checkAnswer(this)">A</button>
+          <button onclick="checkAnswer(this)">B</button>
+          <button onclick="checkAnswer(this)">C</button>
+          <button onclick="checkAnswer(this)">D</button>
+        </div>
+      </div>
+      <div id="timer">30</div>
+      <div id="score">Score: 0</div>
+      <button id="quit-button" onclick="quitGame()">Quit</button>
+    </div>
+  </div>
+
+  <script>
+   
+    const questions = [
+  // Sports Category
+  {
+    category: 'Sports',
+    question: 'Which sport is known as "The Beautiful Game"?',
+    answers: ['A. Basketball', 'B. Football', 'C. Tennis', 'D. Cricket'],
+    correctAnswer: 'B. Football'
+  },
+  {
+    category: 'Sports',
+    question: 'In which sport is the term "home run" used?',
+    answers: ['A. Football', 'B. Baseball', 'C. Cricket', 'D. Basketball'],
+    correctAnswer: 'B. Baseball'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport uses the term "love" to indicate a score of zero?',
+    answers: ['A. Tennis', 'B. Football', 'C. Badminton', 'D. Golf'],
+    correctAnswer: 'A. Tennis'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport has a position called "goalkeeper"?',
+    answers: ['A. Tennis', 'B. Cricket', 'C. Football', 'D. Basketball'],
+    correctAnswer: 'C. Football'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport involves two teams of eleven players each?',
+    answers: ['A. Football', 'B. Tennis', 'C. Golf', 'D. Badminton'],
+    correctAnswer: 'A. Football'
+  },
+  {
+    category: 'Sports',
+    question: 'In which sport do players use a shuttlecock?',
+    answers: ['A. Tennis', 'B. Badminton', 'C. Volleyball', 'D. Baseball'],
+    correctAnswer: 'B. Badminton'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport is played on a grass court or clay court?',
+    answers: ['A. Football', 'B. Cricket', 'C. Tennis', 'D. Golf'],
+    correctAnswer: 'C. Tennis'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport involves a puck instead of a ball?',
+    answers: ['A. Football', 'B. Ice Hockey', 'C. Basketball', 'D. Baseball'],
+    correctAnswer: 'B. Ice Hockey'
+  },
+  {
+    category: 'Sports',
+    question: 'Which sport is the Tour de France associated with?',
+    answers: ['A. Cycling', 'B. Football', 'C. Tennis', 'D. Basketball'],
+    correctAnswer: 'A. Cycling'
+  },
+  {
+    category: 'Sports',
+    question: 'In which sport is the term "hole in one" used?',
+    answers: ['A. Tennis', 'B. Football', 'C. Golf', 'D. Badminton'],
+    correctAnswer: 'C. Golf'
+  },
+
+  // History Category
+  {
+    category: 'History',
+    question: 'Which country did Christopher Columbus first land in?',
+    answers: ['A. United States', 'B. India', 'C. Bahamas', 'D. Mexico'],
+    correctAnswer: 'C. Bahamas'
+  },
+  {
+    category: 'History',
+    question: 'Which war was fought between the North and South regions in the United States?',
+    answers: ['A. Revolutionary War', 'B. Civil War', 'C. World War I', 'D. War of 1812'],
+    correctAnswer: 'B. Civil War'
+  },
+  {
+    category: 'History',
+    question: 'Who was the British Prime Minister during World War II?',
+    answers: ['A. Winston Churchill', 'B. Margaret Thatcher', 'C. Tony Blair', 'D. Neville Chamberlain'],
+    correctAnswer: 'A. Winston Churchill'
+  },
+  {
+    category: 'History',
+    question: 'Which civilization is known for creating the first written language?',
+    answers: ['A. Egyptians', 'B. Greeks', 'C. Sumerians', 'D. Romans'],
+    correctAnswer: 'C. Sumerians'
+  },
+  {
+    category: 'History',
+    question: 'Who was the leader of the Soviet Union during World War II?',
+    answers: ['A. Vladimir Lenin', 'B. Joseph Stalin', 'C. Nikita Khrushchev', 'D. Leonid Brezhnev'],
+    correctAnswer: 'B. Joseph Stalin'
+  },
+  {
+    category: 'History',
+    question: 'What was the name of the ship that brought the Pilgrims to America in 1620?',
+    answers: ['A. Santa Maria', 'B. Mayflower', 'C. Titanic', 'D. Beagle'],
+    correctAnswer: 'B. Mayflower'
+  },
+  {
+    category: 'History',
+    question: 'Who was the famous queen of ancient Egypt?',
+    answers: ['A. Cleopatra', 'B. Nefertiti', 'C. Hatshepsut', 'D. Theodora'],
+    correctAnswer: 'A. Cleopatra'
+  },
+  {
+    category: 'History',
+    question: 'Which empire was known as the "Land of the Rising Sun"?',
+    answers: ['A. Roman Empire', 'B. Japanese Empire', 'C. British Empire', 'D. Ottoman Empire'],
+    correctAnswer: 'B. Japanese Empire'
+  },
+  {
+    category: 'History',
+    question: 'Who was the first emperor of China?',
+    answers: ['A. Sun Yat-sen', 'B. Liu Bang', 'C. Qin Shi Huang', 'D. Wu Zetian'],
+    correctAnswer: 'C. Qin Shi Huang'
+  },
+  {
+    category: 'History',
+    question: 'Which ancient Greek philosopher taught Alexander the Great?',
+    answers: ['A. Socrates', 'B. Plato', 'C. Aristotle', 'D. Herodotus'],
+    correctAnswer: 'C. Aristotle'
+  },
+
+  // Science Category
+  {
+    category: 'Science',
+    question: 'What planet is known as the Red Planet?',
+    answers: ['A. Earth', 'B. Mars', 'C. Jupiter', 'D. Venus'],
+    correctAnswer: 'B. Mars'
+  },
+  {
+    category: 'Science',
+    question: 'What is the hardest natural substance on Earth?',
+    answers: ['A. Gold', 'B. Iron', 'C. Diamond', 'D. Quartz'],
+    correctAnswer: 'C. Diamond'
+  },
+  {
+    category: 'Science',
+    question: 'Which gas do plants primarily use for photosynthesis?',
+    answers: ['A. Oxygen', 'B. Nitrogen', 'C. Carbon dioxide', 'D. Hydrogen'],
+    correctAnswer: 'C. Carbon dioxide'
+  },
+  {
+    category: 'Science',
+    question: 'What is the chemical formula for water?',
+    answers: ['A. CO2', 'B. H2O', 'C. O2', 'D. NaCl'],
+    correctAnswer: 'B. H2O'
+  },
+  {
+    category: 'Science',
+    question: 'Which part of the cell contains the genetic material?',
+    answers: ['A. Cytoplasm', 'B. Mitochondria', 'C. Nucleus', 'D. Ribosome'],
+    correctAnswer: 'C. Nucleus'
+  },
+  {
+    category: 'Science',
+    question: 'What is the speed of light in a vacuum?',
+    answers: ['A. 300,000 km/s', 'B. 150,000 km/s', 'C. 400,000 km/s', 'D. 250,000 km/s'],
+    correctAnswer: 'A. 300,000 km/s'
+  },
+  {
+    category: 'Science',
+    question: 'What element does "O" represent on the periodic table?',
+    answers: ['A. Oxygen', 'B. Osmium', 'C. Gold', 'D. Hydrogen'],
+    correctAnswer: 'A. Oxygen'
+  },
+  {
+    category: 'Science',
+    question: 'Which planet has the most moons?',
+    answers: ['A. Earth', 'B. Mars', 'C. Jupiter', 'D. Venus'],
+    correctAnswer: 'C. Jupiter'
+  },
+  {
+    category: 'Science',
+    question: 'What is the main gas found in the Earth\'s atmosphere?',
+    answers: ['A. Oxygen', 'B. Hydrogen', 'C. Nitrogen', 'D. Helium'],
+    correctAnswer: 'C. Nitrogen'
+  },
+  {
+    category: 'Science',
+    question: 'Which planet is closest to the Sun?',
+    answers: ['A. Earth', 'B. Venus', 'C. Mercury', 'D. Mars'],
+    correctAnswer: 'C. Mercury'
+  }
+];
+
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timerInterval;
+
+    function startGame(category) {
+      document.getElementById('category-selection').style.display = 'none';
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('question-category').innerText = category;
+      loadQuestion(category);
+      startTimer();
+    }
+
+    function loadQuestion(category) {
+      const categoryQuestions = questions.filter(q => q.category === category);
+      const currentQuestion = categoryQuestions[currentQuestionIndex];
+
+      document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
+      document.getElementById('question-text').innerText = currentQuestion.question;
+
+      const answerButtons = document.querySelectorAll('.answers button');
+      answerButtons.forEach((button, index) => {
+        button.innerText = currentQuestion.answers[index];
+      });
+    }
+
+    function checkAnswer(button) {
+      const category = document.getElementById('question-category').innerText;
+      const categoryQuestions = questions.filter(q => q.category === category);
+      const currentQuestion = categoryQuestions[currentQuestionIndex];
+
+      if (button.innerText === currentQuestion.correctAnswer) {
+        button.classList.add('correct');
+        score += 10;
+      } else {
+        button.classList.add('incorrect');
+      }
+
+      document.getElementById('score').innerText = `Score: ${score}`;
+
+      setTimeout(() => {
+        button.classList.remove('correct', 'incorrect');
+        currentQuestionIndex++;
+        if (currentQuestionIndex < categoryQuestions.length) {
+          loadQuestion(category);
+        } else {
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function startTimer() {
+      let timeLeft = 30;
+      document.getElementById('timer').innerText = timeLeft;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+
+        if (timeLeft === 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function quitGame() {
+      clearInterval(timerInterval);
+      alert('Game Over! Thank you for playing.');
+      location.reload(); // Reload the page to reset the quiz
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      alert(`Game Over! Your final score is ${score}.`);
+      location.reload(); // Reload the page to reset the quiz
+    }
+  </script>
+</body>
+</html>
